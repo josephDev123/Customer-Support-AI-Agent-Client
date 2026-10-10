@@ -1,6 +1,6 @@
 # Joseph Customer support
 
-Customer-facing React frontend for the Joseph Customer support AI agent. The interface uses LangGraph execution to stream agent state, show customer-safe execution progress, and handle clarification or email interrupts in the same conversation.
+Customer-facing React frontend for the Joseph Customer support AI agent. The interface provides a polished support conversation, streamed agent progress, intent visibility, and guided clarification handling.
 
 ## Stack
 
@@ -11,26 +11,12 @@ Customer-facing React frontend for the Joseph Customer support AI agent. The int
 
 The visible product name is **Joseph Customer support**. The LangGraph assistant ID remains `agent`, as defined by the backend `langgraph.json`.
 
-## Prerequisites
+## Frontend Setup
 
 - Node.js 22+ and npm
-- The backend repository at `C:\Users\USER\Desktop\my project\customer-support-agent`
-- Backend environment variables configured according to the backend README
+- A running LangGraph server for the `agent` assistant
 
-The frontend connects directly to the LangGraph server. It does not use the NestJS `POST /agent/question` endpoint because `useStream` requires the LangGraph streaming protocol.
-
-## Local Development
-
-Start the LangGraph server from the backend repository:
-
-```bash
-cd "C:\Users\USER\Desktop\my project\customer-support-agent"
-npx @langchain/langgraph-cli dev
-```
-
-The LangGraph server should be available at `http://localhost:2024` and expose the `agent` graph.
-
-In a second terminal, install and start the frontend:
+Install dependencies and start the frontend:
 
 ```bash
 cd "C:\Users\USER\Desktop\my project\AI-Customer-support-agent-client"
@@ -38,13 +24,17 @@ npm install
 npm run dev
 ```
 
-If the LangGraph server uses a different URL, create or update `.env` in this repository:
+The Vite development server will print the local frontend URL in the terminal.
+
+Configure the LangGraph server URL in `.env`:
 
 ```env
 VITE_LANGGRAPH_API_URL=http://localhost:2024
 ```
 
 Restart Vite after changing environment variables.
+
+The default backend integration expects the LangGraph server at `http://localhost:2024` with assistant ID `agent`. The frontend connects through `useStream` and does not call the NestJS REST endpoint directly.
 
 ## Commands
 
@@ -57,7 +47,7 @@ Restart Vite after changing environment variables.
 | `npm run format` | Format TypeScript and TSX files. |
 | `npm run preview` | Preview the production build locally. |
 
-## Project Structure
+## Frontend Structure
 
 ```text
 src/
@@ -68,13 +58,13 @@ src/
 └── main.tsx             React bootstrap
 ```
 
-The agent page uses `useStream` for submission, streamed values, loading/error state, thread lifecycle, and interrupt responses. Keep graph-specific state types and customer-safe progress mapping close to the agent feature so new backend nodes can be added without coupling them to the overall application shell.
+The agent page uses `useStream` for submission, streamed values, loading/error state, thread lifecycle, and interrupt responses. Keep graph-specific state types and customer-safe progress mapping close to `src/features/agent` so new agent nodes can be represented without coupling them to the application shell.
 
 ## Troubleshooting
 
-- **Agent cannot be reached:** Confirm a process is listening on port `2024` and that `npx @langchain/langgraph-cli dev` is running.
-- **Requests go to port 8000:** Check `.env`; `VITE_LANGGRAPH_API_URL` must point to the LangGraph server, not the NestJS API.
-- **Assistant not found:** Confirm the backend `langgraph.json` contains the `agent` graph entry.
+- **Agent cannot be reached:** Confirm the configured LangGraph server is running and reachable at `VITE_LANGGRAPH_API_URL`.
+- **Requests go to the wrong port:** Check `.env`; the URL should point to the LangGraph server, commonly `http://localhost:2024`.
+- **Assistant not found:** Confirm the configured LangGraph server exposes assistant ID `agent`.
 - **Environment changes have no effect:** Restart the Vite development server after editing `.env`.
 
 Do not commit secrets or local `.env` files.
